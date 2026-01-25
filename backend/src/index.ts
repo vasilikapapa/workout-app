@@ -23,7 +23,16 @@ const app = express();
  */
 
 // Enable CORS so the mobile app / frontend can call the API
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://workout-k920w7mg3-vasilika-papas-projects.vercel.app"
+    ],
+    credentials: true
+  })
+);
 
 // Parse incoming JSON bodies
 app.use(express.json());
