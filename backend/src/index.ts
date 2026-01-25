@@ -3,11 +3,11 @@ import express from "express";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 
-import authRouter from "./routes/auth.js";
-import plans from "./routes/plans.js";
-import { prisma } from "./prisma.js";
-import { requireAuth } from "./middleware/auth.js";
-import type { AuthedRequest } from "./middleware/auth.js";
+import authRouter from "./routes/auth";
+import plans from "./routes/plans";
+import { prisma } from "./prisma";
+import { requireAuth } from "./middleware/auth";
+import type { AuthedRequest } from "./middleware/auth";
 
 /**
  * =========================
