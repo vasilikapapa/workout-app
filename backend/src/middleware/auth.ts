@@ -2,22 +2,36 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 /**
- * Extended Express Request type.
- * Adds `userId` so authenticated routes can know
- * which user is making the request.
+ * Authenticated Request type.
+ *
+ * Extends Express `Request` and:
+ * - Keeps route params strongly typed (default: string → string)
+ * - Adds `userId`, injected after successful JWT verification
+ *
+ * The generics allow each route to specify its own params shape:
+ *   AuthedRequest<{ id: string }>
  */
-export interface AuthedRequest extends Request {
+export type AuthedRequest<
+  Params extends Record<string, string> = Record<string, string>,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = any
+> = Request<Params, ResBody, ReqBody, ReqQuery> & {
   userId?: string;
-}
+};
 
 /**
  * Authentication middleware.
  *
- * - Expects an Authorization header in the form:
- *   "Authorization: Bearer <JWT>"
- * - Verifies the JWT using JWT_SECRET
- * - Attaches the decoded userId to req.userId
- * - Blocks the request with 401 if anything is invalid
+ * Responsibilities:
+ * - Reads `Authorization` header
+ * - Extracts Bearer token
+ * - Verifies JWT using `JWT_SECRET`
+ * - Attaches `userId` to the request object
+ * - Blocks unauthenticated requests with HTTP 401
+ *
+ * Expected header format:
+ *   Authorization: Bearer <JWT>
  */
 export function requireAuth(
   req: AuthedRequest,
@@ -27,7 +41,7 @@ export function requireAuth(
   // Read Authorization header
   const header = req.headers.authorization;
 
-  // No Authorization header provided
+  // Header missing → unauthenticated
   if (!header) {
     return res.status(401).json({ error: "No token" });
   }
@@ -35,24 +49,27 @@ export function requireAuth(
   // Extract token from "Bearer <token>"
   const token = header.split(" ")[1];
 
-  // Header exists but token is missing or malformed
+  // Token missing or malformed
   if (!token) {
     return res.status(401).json({ error: "No token" });
   }
 
   try {
-    // Verify and decode JWT
+    /**
+     * Verify and decode JWT.
+     * If invalid or expired, jwt.verify throws.
+     */
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
     };
 
-    // Attach userId to request for downstream handlers
+    // Attach authenticated user id to request
     req.userId = payload.userId;
 
-    // Continue to the next middleware / route handler
+    // Proceed to the next middleware / route handler
     next();
   } catch {
-    // Token is invalid or expired
+    // Token verification failed
     return res.status(401).json({ error: "Invalid token" });
   }
 }
