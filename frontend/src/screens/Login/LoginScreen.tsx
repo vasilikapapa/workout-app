@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   View,
   TextInput,
@@ -6,6 +6,7 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from "react-native";
 
 // API client for backend communication
@@ -44,6 +45,21 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
   // Error message returned from API
   const [error, setError] = useState("");
 
+  // Loading flag to prevent double-submits and improve UX
+  const [loading, setLoading] = useState(false);
+
+  /**
+   * =========================
+   * Derived state
+   * =========================
+   */
+
+  // Normalize email to avoid common login issues (extra spaces, casing)
+  const normalizedEmail = useMemo(() => email.trim().toLowerCase(), [email]);
+
+  // Basic form validity check (simple, but effective)
+  const canSubmit = normalizedEmail.length > 0 && password.length > 0 && !loading;
+
   /**
    * =========================
    * Login handler
@@ -54,13 +70,20 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
    * and transitions app to signed-in state.
    */
   async function login() {
+    // Prevent accidental double taps
+    if (!canSubmit) return;
+
     // Reset previous error
     setError("");
+    setLoading(true);
 
     try {
+      // Optional: dismiss keyboard after submit for a cleaner feel
+      Keyboard.dismiss();
+
       // Send login request to backend
       const res = await api.post("/auth/login", {
-        email,
+        email: normalizedEmail,
         password,
       });
 
@@ -72,6 +95,9 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
     } catch (e: any) {
       // Display server-provided error or fallback message
       setError(e?.response?.data?.error ?? "Login failed");
+    } finally {
+      // Always reset loading state
+      setLoading(false);
     }
   }
 
@@ -92,18 +118,19 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
         <Text style={styles.title}>Welcome Back 💪</Text>
 
         {/* Subtitle */}
-        <Text style={styles.subtitle}>
-          Log in to continue your workout
-        </Text>
+        <Text style={styles.subtitle}>Log in to continue your workout</Text>
 
         {/* Email input */}
         <TextInput
           placeholder="Email"
           placeholderTextColor="#999"
           autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
           style={styles.input}
+          returnKeyType="next"
         />
 
         {/* Password input */}
@@ -114,6 +141,8 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
           value={password}
           onChangeText={setPassword}
           style={styles.input}
+          returnKeyType="done"
+          onSubmitEditing={login}
         />
 
         {/* Error message */}
@@ -121,14 +150,16 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
 
         {/* Login button */}
         <View style={styles.primaryButton}>
-          <Button title="Login" onPress={login} color="#fff" />
+          <Button
+            title={loading ? "Logging in..." : "Login"}
+            onPress={login}
+            color="#fff"
+            disabled={!canSubmit}
+          />
         </View>
 
         {/* Navigation to register screen */}
-        <Text
-          style={styles.link}
-          onPress={() => navigation.navigate("Register")}
-        >
+        <Text style={styles.link} onPress={() => navigation.navigate("Register")}>
           Create an account
         </Text>
       </View>
