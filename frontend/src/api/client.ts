@@ -16,7 +16,7 @@ import { getToken } from "../auth/token";
 
 // Create a preconfigured Axios instance
 export const api = axios.create({
-  baseURL: "http://192.168.1.73:4000", // Backend API base URL
+  baseURL: "https://workout-app-iy2c.onrender.com", // Backend API base URL
 });
 
 // Log base URL for debugging (safe to remove in production)
