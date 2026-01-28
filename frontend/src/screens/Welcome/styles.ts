@@ -60,4 +60,42 @@ export const styles = StyleSheet.create({
   /**
    * Primary button (Login)
    * - Green to encourage action
-   * - Rounded*
+   * - Rounded to match card style
+   */
+  primaryButton: {
+    backgroundColor: "#22c55e",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+
+  /**
+   * Primary button text
+   */
+  primaryButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
+  /**
+   * Secondary button (Register)
+   * - Outlined style to reduce emphasis
+   */
+  secondaryButton: {
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+  },
+
+  /**
+   * Secondary button text
+   */
+  secondaryButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+  },
+});
