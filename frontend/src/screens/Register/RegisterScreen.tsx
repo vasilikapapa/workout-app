@@ -10,7 +10,10 @@ import {
   Keyboard,
 } from "react-native";
 
+// API client for backend communication
 import { api } from "../../api/client";
+
+// Utility for securely storing JWT token
 import { setToken } from "../../auth/token";
 
 // Screen-specific styles
@@ -27,11 +30,10 @@ import { styles } from "./styles";
  * - Store the token securely
  * - Enter the authenticated app flow
  *
- * UX improvements:
- * - Card layout
- * - Loading state + disabled submit
- * - Email + password validation
- * - Keyboard-friendly flow
+ * UX decision:
+ * - Do NOT disable the submit button.
+ * - Always allow tapping "Create account".
+ * - If something is wrong, show a clear validation message.
  */
 export default function RegisterScreen({ navigation, onSignedIn }: any) {
   /**
@@ -40,95 +42,105 @@ export default function RegisterScreen({ navigation, onSignedIn }: any) {
    * =========================
    */
 
-  // Email input
+  // Email input value
   const [email, setEmail] = useState("");
 
-  // Password input
+  // Password input value
   const [password, setPassword] = useState("");
 
-  // Confirm password input (client-side validation)
+  // Confirm password input value (client-side check)
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Error message from API or validation
+  // Error message (validation or API)
   const [error, setError] = useState("");
 
-  // Loading flag to prevent double submit
+  // Loading flag to prevent double-submits
   const [loading, setLoading] = useState(false);
 
-  // Ref to move focus email → password → confirm
+  // Refs for moving focus between fields
   const passwordRef = useRef<TextInput>(null);
   const confirmRef = useRef<TextInput>(null);
 
   /**
    * =========================
-   * Derived state
+   * Derived values
    * =========================
    */
 
-  // Normalize email (trim + lower-case)
+  // Normalize email to avoid issues with spaces/casing
   const normalizedEmail = useMemo(() => email.trim().toLowerCase(), [email]);
 
   /**
-   * Email format validation (simple but effective)
+   * =========================
+   * Validation helpers
+   * =========================
+   */
+
+  /**
+   * Basic email format validation
+   * (simple regex: something@something.domain)
    */
   function isValidEmail(value: string) {
-    // Basic email regex: "something@something.domain"
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
   /**
    * Password validation rules
-   * You can adjust these based on your backend requirements.
+   * Adjust if your backend requires stronger passwords.
    */
   function validatePassword(pw: string): string | null {
     if (pw.length < 6) return "Password must be at least 6 characters.";
-    // Optional stronger rules (uncomment if you want):
-    // if (!/[A-Z]/.test(pw)) return "Password must include 1 uppercase letter.";
-    // if (!/[0-9]/.test(pw)) return "Password must include 1 number.";
     return null;
   }
 
   /**
-   * Validate the whole form before submit
+   * Validate all fields and return a user-friendly message
+   * or null if everything is valid.
    */
   function validateForm(): string | null {
+    // Email required + format
     if (!normalizedEmail) return "Email is required.";
     if (!isValidEmail(normalizedEmail)) return "Please enter a valid email.";
 
+    // Password rules
     const pwErr = validatePassword(password);
     if (pwErr) return pwErr;
 
+    // Confirm password matches
     if (password !== confirmPassword) return "Passwords do not match.";
+
+    // All good
     return null;
   }
-
-  // Submit allowed if form is valid and not loading
-  const canSubmit = useMemo(() => !validateForm() && !loading, [
-    normalizedEmail,
-    password,
-    confirmPassword,
-    loading,
-  ]);
 
   /**
    * =========================
    * Register handler
    * =========================
+   *
+   * Behavior:
+   * - Always allow pressing the button
+   * - Show validation message if invalid
+   * - If valid, submit to backend
    */
   async function register() {
-    // Run validation
+    // Clear previous error
+    setError("");
+
+    // Run validation before calling the API
     const v = validateForm();
     if (v) {
       setError(v);
       return;
     }
 
-    // Clear previous error
-    setError("");
+    // Prevent double-submits while request is in-flight
+    if (loading) return;
+
     setLoading(true);
 
     try {
-      // Dismiss keyboard after submit
+      // Dismiss keyboard for a clean feel
       Keyboard.dismiss();
 
       // Send registration request to backend
@@ -147,8 +159,10 @@ export default function RegisterScreen({ navigation, onSignedIn }: any) {
       onSignedIn();
     } catch (e: any) {
       // Show server-provided error or fallback message
+      // (e.g. "Email already exists")
       setError(e?.response?.data?.error ?? "Register failed");
     } finally {
+      // Always reset loading state
       setLoading(false);
     }
   }
@@ -182,7 +196,11 @@ export default function RegisterScreen({ navigation, onSignedIn }: any) {
           autoCorrect={false}
           keyboardType="email-address"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(v) => {
+            // Update field and clear error as user types (better UX)
+            setEmail(v);
+            if (error) setError("");
+          }}
           style={styles.input}
           returnKeyType="next"
           onSubmitEditing={() => passwordRef.current?.focus()}
@@ -195,7 +213,10 @@ export default function RegisterScreen({ navigation, onSignedIn }: any) {
           placeholderTextColor="#999"
           secureTextEntry
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(v) => {
+            setPassword(v);
+            if (error) setError("");
+          }}
           style={styles.input}
           returnKeyType="next"
           onSubmitEditing={() => confirmRef.current?.focus()}
@@ -208,7 +229,10 @@ export default function RegisterScreen({ navigation, onSignedIn }: any) {
           placeholderTextColor="#999"
           secureTextEntry
           value={confirmPassword}
-          onChangeText={setConfirmPassword}
+          onChangeText={(v) => {
+            setConfirmPassword(v);
+            if (error) setError("");
+          }}
           style={styles.input}
           returnKeyType="done"
           onSubmitEditing={register}
@@ -217,18 +241,14 @@ export default function RegisterScreen({ navigation, onSignedIn }: any) {
         {/* Error message */}
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        {/* Create account button */}
-        <Pressable
-          style={[styles.primaryButton, !canSubmit && styles.primaryButtonDisabled]}
-          onPress={register}
-          disabled={!canSubmit}
-        >
+        {/* Create account button (NOT disabled; shows feedback via error messages) */}
+        <Pressable style={styles.primaryButton} onPress={register}>
           <Text style={styles.primaryButtonText}>
             {loading ? "Creating..." : "Create account"}
           </Text>
         </Pressable>
 
-        {/* Back to login */}
+        {/* Navigate back to login */}
         <Text style={styles.link} onPress={() => navigation.navigate("Login")}>
           Back to login
         </Text>
