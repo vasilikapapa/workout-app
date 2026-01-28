@@ -1,6 +1,6 @@
 // screens/Register/styles.ts
 import { StyleSheet } from "react-native";
-import { COLORS } from "../../styles/colors";
+import { COLORS } from "../../styles/styles";
 
 /**
  * =========================
