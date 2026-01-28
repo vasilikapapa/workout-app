@@ -1,6 +1,6 @@
 // screens/Welcome/styles.ts
 import { StyleSheet } from "react-native";
-
+import { COLORS } from "../../styles/colors";
 /**
  * =========================
  * Welcome Screen Styles
@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
    */
   screen: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     padding: 20,
   },
@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
    * - Padding for comfortable spacing
    */
   card: {
-    backgroundColor: "#ffffff",
+    backgroundColor:COLORS.surface,
     borderRadius: 20,
     padding: 24,
     gap: 14,
@@ -40,6 +40,7 @@ export const styles = StyleSheet.create({
    * - Large, bold typography for branding
    */
   title: {
+     color: COLORS.textPrimary,
     fontSize: 28,
     fontWeight: "800",
     textAlign: "center",
@@ -52,7 +53,7 @@ export const styles = StyleSheet.create({
    */
   subtitle: {
     fontSize: 14,
-    color: "#666",
+    color: COLORS.textSecondary,
     textAlign: "center",
     marginBottom: 10,
   },
@@ -63,7 +64,7 @@ export const styles = StyleSheet.create({
    * - Rounded to match card style
    */
   primaryButton: {
-    backgroundColor: "#22c55e",
+    backgroundColor: COLORS.primary,
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: "center",

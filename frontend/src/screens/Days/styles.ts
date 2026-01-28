@@ -1,23 +1,21 @@
-// screens/Plans/styles.ts
+// screens/Day/styles.ts
 import { StyleSheet } from "react-native";
 import { COLORS } from "../../styles/colors";
 
 /**
  * =========================
- * Plans Screen Styles
+ * Day Screen Styles
  * =========================
  *
  * Design goals:
- * - Open, light background (less heavy than dark blue)
- * - Clear header hierarchy
- * - Card-based list for plans
- * - Strong but friendly primary action
- * - Consistent use of global color palette
+ * - Open palette (light background)
+ * - Clean header + segmented tabs
+ * - Clear exercise cards (tap to edit)
+ * - Friendly empty + loading states
  */
 export const styles = StyleSheet.create({
   /**
    * Screen wrapper
-   * - Uses global background color
    */
   screen: {
     flex: 1,
@@ -27,9 +25,7 @@ export const styles = StyleSheet.create({
   },
 
   /**
-   * Header section
-   * - Soft surface container
-   * - Subtle border for separation
+   * Header section (title + action)
    */
   header: {
     backgroundColor: COLORS.surfaceMuted,
@@ -44,18 +40,12 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  /**
-   * Header title
-   */
   headerTitle: {
     color: COLORS.textPrimary,
     fontSize: 20,
-    fontWeight: "800",
+    fontWeight: "900",
   },
 
-  /**
-   * Header subtitle
-   */
   headerSubtitle: {
     color: COLORS.textSecondary,
     marginTop: 4,
@@ -65,127 +55,62 @@ export const styles = StyleSheet.create({
   },
 
   /**
-   * Logout button
-   * - Small, subtle action
+   * Add Exercise button (header)
    */
-  logoutButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+  addButton: {
+    backgroundColor: COLORS.primary,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  /**
-   * Logout button text
-   */
-  logoutText: {
-    color: COLORS.textPrimary,
-    fontWeight: "700",
+  addButtonText: {
+    color: COLORS.surface,
+    fontWeight: "900",
     fontSize: 13,
   },
 
   /**
-   * Create row: input + add button
+   * Tabs wrapper
    */
-  createRow: {
+  tabsWrap: {
     flexDirection: "row",
     gap: 10,
     marginBottom: 12,
   },
 
   /**
-   * New plan input
+   * Individual tab
    */
-  input: {
+  tab: {
     flex: 1,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
-    color: COLORS.textPrimary,
-  },
-
-  /**
-   * Add plan button
-   * - Uses primary brand color
-   */
-  addButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 14,
-    paddingHorizontal: 14,
+    borderRadius: 999,
+    paddingVertical: 10,
     alignItems: "center",
-    justifyContent: "center",
-    minWidth: 64,
   },
 
   /**
-   * Disabled add button state
+   * Active tab style
    */
-  addButtonDisabled: {
-    opacity: 0.55,
+  tabActive: {
+    backgroundColor: COLORS.primarySoft,
+    borderColor: COLORS.primary,
   },
 
-  /**
-   * Add button text
-   */
-  addButtonText: {
-    color: COLORS.surface,
-    fontWeight: "900",
-    fontSize: 14,
-  },
-
-  /**
-   * FlatList content spacing
-   */
-  listContent: {
-    paddingBottom: 20,
-  },
-
-  /**
-   * Used when list is empty (centers empty state)
-   */
-  listEmpty: {
-    flexGrow: 1,
-    justifyContent: "center",
-    paddingBottom: 20,
-  },
-
-  /**
-   * Plan card
-   * - White surface
-   * - Clear tap target
-   */
-  planCard: {
-    backgroundColor: COLORS.surface,
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-
-  /**
-   * Plan title text
-   */
-  planTitle: {
-    fontSize: 16,
+  tabText: {
+    color: COLORS.textSecondary,
     fontWeight: "800",
-    color: COLORS.textPrimary,
+    fontSize: 12,
+    letterSpacing: 0.6,
   },
 
-  /**
-   * Small hint text under plan title
-   */
-  planHint: {
-    marginTop: 4,
-    fontSize: 12,
-    color: COLORS.textMuted,
+  tabTextActive: {
+    color: COLORS.primary,
   },
 
   /**
@@ -198,15 +123,84 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
 
-  /**
-   * Loading helper text
-   */
   loadingText: {
     color: COLORS.textSecondary,
   },
 
   /**
-   * Empty state container
+   * FlatList content spacing
+   */
+  listContent: {
+    paddingBottom: 20,
+  },
+
+  listEmpty: {
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingBottom: 20,
+  },
+
+  /**
+   * Exercise item wrapper
+   */
+  exerciseBlock: {
+    marginBottom: 12,
+  },
+
+  /**
+   * Exercise card (tap to edit)
+   */
+  exerciseCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+
+  exerciseTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    gap: 10,
+  },
+
+  exerciseTitle: {
+    color: COLORS.textPrimary,
+    fontSize: 16,
+    fontWeight: "900",
+  },
+
+  exerciseEditHint: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+  },
+
+  exerciseMeta: {
+    marginTop: 6,
+    color: COLORS.textSecondary,
+  },
+
+  /**
+   * Delete button under card
+   */
+  deleteButton: {
+    marginTop: 8,
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: "center",
+    backgroundColor: "#FEE2E2",
+    borderWidth: 1,
+    borderColor: "#FECACA",
+  },
+
+  deleteText: {
+    color: COLORS.danger,
+    fontWeight: "800",
+  },
+
+  /**
+   * Empty state
    */
   emptyWrap: {
     backgroundColor: COLORS.surfaceMuted,
@@ -217,19 +211,13 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
 
-  /**
-   * Empty state title
-   */
   emptyTitle: {
     color: COLORS.textPrimary,
     fontSize: 18,
-    fontWeight: "800",
+    fontWeight: "900",
     textAlign: "center",
   },
 
-  /**
-   * Empty state description
-   */
   emptyText: {
     color: COLORS.textSecondary,
     textAlign: "center",
@@ -237,7 +225,7 @@ export const styles = StyleSheet.create({
   },
 
   /**
-   * Primary action button (empty state)
+   * Primary button (empty state)
    */
   primaryButton: {
     backgroundColor: COLORS.primary,
@@ -247,16 +235,6 @@ export const styles = StyleSheet.create({
     marginTop: 6,
   },
 
-  /**
-   * Disabled primary button
-   */
-  primaryButtonDisabled: {
-    opacity: 0.6,
-  },
-
-  /**
-   * Primary button text
-   */
   primaryButtonText: {
     color: COLORS.surface,
     fontWeight: "900",

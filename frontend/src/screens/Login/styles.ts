@@ -1,6 +1,6 @@
 // screens/Login/styles.ts
 import { StyleSheet } from "react-native";
-
+import { COLORS } from "../../styles/colors";
 /**
  * =========================
  * Login Screen Styles
@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
    */
   screen: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     padding: 20,
   },
@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
    * - Shadow/elevation for depth
    */
   card: {
-    backgroundColor: "#ffffff",
+    backgroundColor: COLORS.surface,
     borderRadius: 20,
     padding: 24,
     gap: 14,
@@ -50,6 +50,7 @@ export const styles = StyleSheet.create({
    * - Centered for balance
    */
   title: {
+    color: COLORS.textPrimary,
     fontSize: 22,
     fontWeight: "700",
     textAlign: "center",
@@ -61,7 +62,7 @@ export const styles = StyleSheet.create({
    */
   subtitle: {
     fontSize: 14,
-    color: "#666",
+    color: COLORS.textSecondary,
     textAlign: "center",
     marginBottom: 10,
   },
@@ -97,7 +98,7 @@ export const styles = StyleSheet.create({
    * - Overflow hidden for proper button clipping
    */
   primaryButton: {
-    backgroundColor: "#22c55e",
+    backgroundColor: COLORS.primary,
     borderRadius: 12,
     overflow: "hidden",
     marginTop: 6,

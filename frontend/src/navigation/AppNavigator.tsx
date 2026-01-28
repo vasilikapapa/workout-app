@@ -8,7 +8,7 @@ import LoginScreen from "../screens/Login/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import PlansScreen from "../screens/Plans/PlansScreen";
 import PlanScreen from "../screens/Plan/PlanScreen";
-import DayScreen from "../screens/DayScreen";
+import DayScreen from "../screens/Days/DayScreen";
 import ExerciseFormScreen from "../screens/ExerciseFormScreen";
 
 /**
