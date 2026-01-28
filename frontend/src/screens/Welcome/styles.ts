@@ -1,6 +1,6 @@
 // screens/Welcome/styles.ts
 import { StyleSheet } from "react-native";
-import { COLORS } from "../../styles/colors";
+import { COLORS } from "../../styles/styles";
 /**
  * =========================
  * Welcome Screen Styles
