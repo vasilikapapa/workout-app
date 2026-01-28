@@ -9,7 +9,7 @@ import RegisterScreen from "../screens/RegisterScreen";
 import PlansScreen from "../screens/Plans/PlansScreen";
 import PlanScreen from "../screens/Plan/PlanScreen";
 import DayScreen from "../screens/Days/DayScreen";
-import ExerciseFormScreen from "../screens/ExerciseFormScreen";
+import ExerciseFormScreen from "../screens/ExerciseForm/ExerciseFormScreen";
 
 /**
  * =========================
