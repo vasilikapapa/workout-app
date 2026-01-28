@@ -6,7 +6,7 @@ import { getToken } from "../auth/token";
 import WelcomeScreen from "../screens/Welcome/WelcomeScreen";
 import LoginScreen from "../screens/Login/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
-import PlansScreen from "../screens/PlansScreen";
+import PlansScreen from "../screens/Plans/PlansScreen";
 import PlanScreen from "../screens/Plan/PlanScreen";
 import DayScreen from "../screens/DayScreen";
 import ExerciseFormScreen from "../screens/ExerciseFormScreen";
