@@ -3,10 +3,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { getToken } from "../auth/token";
 
+import WelcomeScreen from "../screens/Welcome/WelcomeScreen";
 import LoginScreen from "../screens/Login/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import PlansScreen from "../screens/PlansScreen";
-import PlanScreen from "../screens/PlanScreen";
+import PlanScreen from "../screens/Plan/PlanScreen";
 import DayScreen from "../screens/DayScreen";
 import ExerciseFormScreen from "../screens/ExerciseFormScreen";
 
@@ -19,7 +20,8 @@ import ExerciseFormScreen from "../screens/ExerciseFormScreen";
  * Used for type-safe navigation with React Navigation.
  */
 export type RootStackParamList = {
-  // Auth screens
+  // Landing / Auth screens
+  Welcome: undefined;
   Login: undefined;
   Register: undefined;
 
@@ -56,11 +58,11 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
  * =========================
  *
  * - Handles authentication-based navigation
- * - Shows Login/Register when signed out
+ * - Shows Welcome/Login/Register when signed out
  * - Shows app screens when signed in
  */
 export default function AppNavigator() {
-  const [ready, setReady] = useState(false);      // Wait until token check completes
+  const [ready, setReady] = useState(false); // Wait until token check completes
   const [signedIn, setSignedIn] = useState(false); // Auth state
 
   /**
@@ -72,7 +74,7 @@ export default function AppNavigator() {
     (async () => {
       const t = await getToken();
       setSignedIn(!!t); // true if token exists
-      setReady(true);   // allow rendering
+      setReady(true); // allow rendering
     })();
   }, []);
 
@@ -81,74 +83,84 @@ export default function AppNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        {/* =========================
-            Auth flow (not signed in)
-           ========================= */}
-        {!signedIn ? (
-          <>
-            <Stack.Screen name="Login" options={{ title: "Login" }}>
-              {(props) => (
-                <LoginScreen
-                  {...props}
-                  onSignedIn={() => setSignedIn(true)}
-                />
-              )}
-            </Stack.Screen>
+      {/* =========================
+          IMPORTANT:
+          We use two different stacks depending on signedIn state.
+          Signed out: Welcome -> Login/Register
+          Signed in: Plans -> Plan -> Day -> ExerciseForm
+         ========================= */}
+      {!signedIn ? (
+        /**
+         * =========================
+         * Auth flow (not signed in)
+         * =========================
+         *
+         * Start on Welcome screen.
+         */
+        <Stack.Navigator initialRouteName="Welcome">
+          {/* Welcome / landing screen */}
+          <Stack.Screen
+            name="Welcome"
+            component={WelcomeScreen}
+            options={{ headerShown: false }}
+          />
 
-            <Stack.Screen name="Register" options={{ title: "Create account" }}>
-              {(props) => (
-                <RegisterScreen
-                  {...props}
-                  onSignedIn={() => setSignedIn(true)}
-                />
-              )}
-            </Stack.Screen>
-          </>
-        ) : (
-          <>
-            {/* =========================
-                App flow (signed in)
-               ========================= */}
+          {/* Login */}
+          <Stack.Screen name="Login" options={{ title: "Login" }}>
+            {(props) => (
+              <LoginScreen {...props} onSignedIn={() => setSignedIn(true)} />
+            )}
+          </Stack.Screen>
 
-            <Stack.Screen name="Plans" options={{ title: "Plans" }}>
-              {(props) => (
-                <PlansScreen
-                  {...props}
-                  onSignedOut={() => setSignedIn(false)}
-                />
-              )}
-            </Stack.Screen>
+          {/* Register */}
+          <Stack.Screen name="Register" options={{ title: "Create account" }}>
+            {(props) => (
+              <RegisterScreen {...props} onSignedIn={() => setSignedIn(true)} />
+            )}
+          </Stack.Screen>
+        </Stack.Navigator>
+      ) : (
+        /**
+         * =========================
+         * App flow (signed in)
+         * =========================
+         */
+        <Stack.Navigator>
+          {/* Plans list */}
+          <Stack.Screen name="Plans" options={{ title: "Plans" }}>
+            {(props) => (
+              <PlansScreen {...props} onSignedOut={() => setSignedIn(false)} />
+            )}
+          </Stack.Screen>
 
-            {/* Plan details */}
-            <Stack.Screen
-              name="Plan"
-              component={PlanScreen}
-              options={({ route }) => ({
-                title: route.params.title,
-              })}
-            />
+          {/* Plan details */}
+          <Stack.Screen
+            name="Plan"
+            component={PlanScreen}
+            options={({ route }) => ({
+              title: route.params.title,
+            })}
+          />
 
-            {/* Day details */}
-            <Stack.Screen
-              name="Day"
-              component={DayScreen}
-              options={({ route }) => ({
-                title: route.params.dayName,
-              })}
-            />
+          {/* Day details */}
+          <Stack.Screen
+            name="Day"
+            component={DayScreen}
+            options={({ route }) => ({
+              title: route.params.dayName,
+            })}
+          />
 
-            {/* Add / edit exercise */}
-            <Stack.Screen
-              name="ExerciseForm"
-              component={ExerciseFormScreen}
-              options={({ route }) => ({
-                title: `Add exercise (${route.params.sectionType})`,
-              })}
-            />
-          </>
-        )}
-      </Stack.Navigator>
+          {/* Add / edit exercise */}
+          <Stack.Screen
+            name="ExerciseForm"
+            component={ExerciseFormScreen}
+            options={({ route }) => ({
+              title: `Add exercise (${route.params.sectionType})`,
+            })}
+          />
+        </Stack.Navigator>
+      )}
     </NavigationContainer>
   );
 }

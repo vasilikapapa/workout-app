@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   View,
   TextInput,
@@ -48,6 +48,9 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
   // Loading flag to prevent double-submits and improve UX
   const [loading, setLoading] = useState(false);
 
+  // Ref to move focus from email → password
+  const passwordRef = useRef<TextInput>(null);
+
   /**
    * =========================
    * Derived state
@@ -58,7 +61,8 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
   const normalizedEmail = useMemo(() => email.trim().toLowerCase(), [email]);
 
   // Basic form validity check (simple, but effective)
-  const canSubmit = normalizedEmail.length > 0 && password.length > 0 && !loading;
+  const canSubmit =
+    normalizedEmail.length > 0 && password.length > 0 && !loading;
 
   /**
    * =========================
@@ -78,7 +82,7 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
     setLoading(true);
 
     try {
-      // Optional: dismiss keyboard after submit for a cleaner feel
+      // Dismiss keyboard for cleaner UX
       Keyboard.dismiss();
 
       // Send login request to backend
@@ -91,6 +95,7 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
       await setToken(res.data.token);
 
       // Inform parent navigator that user is authenticated
+      // and prevent navigating back to Login
       onSignedIn();
     } catch (e: any) {
       // Display server-provided error or fallback message
@@ -118,7 +123,9 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
         <Text style={styles.title}>Welcome Back 💪</Text>
 
         {/* Subtitle */}
-        <Text style={styles.subtitle}>Log in to continue your workout</Text>
+        <Text style={styles.subtitle}>
+          Log in to continue your workout
+        </Text>
 
         {/* Email input */}
         <TextInput
@@ -131,10 +138,13 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
           onChangeText={setEmail}
           style={styles.input}
           returnKeyType="next"
+          accessibilityLabel="Email input"
+          onSubmitEditing={() => passwordRef.current?.focus()}
         />
 
         {/* Password input */}
         <TextInput
+          ref={passwordRef}
           placeholder="Password"
           placeholderTextColor="#999"
           secureTextEntry
@@ -142,6 +152,7 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
           onChangeText={setPassword}
           style={styles.input}
           returnKeyType="done"
+          accessibilityLabel="Password input"
           onSubmitEditing={login}
         />
 
@@ -158,8 +169,16 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
           />
         </View>
 
+        {/* Forgot password (future feature placeholder) */}
+        <Text style={styles.link} onPress={() => {}}>
+          Forgot password?
+        </Text>
+
         {/* Navigation to register screen */}
-        <Text style={styles.link} onPress={() => navigation.navigate("Register")}>
+        <Text
+          style={styles.link}
+          onPress={() => navigation.navigate("Register")}
+        >
           Create an account
         </Text>
       </View>
