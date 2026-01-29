@@ -1,8 +1,8 @@
-// screens/Welcome/WelcomeScreen.tsx
+// src/screens/Welcome/WelcomeScreen.tsx
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, ImageBackground, Pressable, StatusBar } from "react-native";
 
-// Import screen-specific styles
+// Screen-specific styles
 import { styles } from "./styles";
 
 /**
@@ -10,43 +10,67 @@ import { styles } from "./styles";
  * WelcomeScreen
  * =========================
  *
- * First screen of the app.
- *
  * Purpose:
- * - Introduce the app and its main value
- * - Guide users to Login or Register
- * - Act as a landing page before authentication
+ * - First screen users see when signed out
+ * - Introduce the app
+ * - Provide clear actions to Login / Register
+ *
+ * Design:
+ * - Full-screen background image
+ * - Dark overlay for readability
+ * - Title + short tagline
+ * - Two actions: Get started / Log in
  */
 export default function WelcomeScreen({ navigation }: any) {
   return (
-    // Full-screen wrapper
     <View style={styles.screen}>
-      {/* Center card container */}
-      <View style={styles.card}>
-        {/* App name / branding */}
-        <Text style={styles.title}>Workout App</Text>
+      {/* Helps text look better over a dark image */}
+      <StatusBar barStyle="light-content" />
 
-        {/* Short app description */}
-        <Text style={styles.subtitle}>
-          Record workout plans, track sets & reps, and stay consistent.
-        </Text>
+      <ImageBackground
+        // ✅ Put your image here (instructions below)
+        source={require("../../assets/welcome.jpg")}
+        style={styles.bg}
+        resizeMode="cover"
+      >
+        {/* Dark overlay to keep text readable */}
+        <View style={styles.overlay} />
 
-        {/* Primary action: Login */}
-        <Pressable
-          style={styles.primaryButton}
-          onPress={() => navigation.navigate("Login")}
-        >
-          <Text style={styles.primaryButtonText}>Login</Text>
-        </Pressable>
+        {/* Content */}
+        <View style={styles.content}>
+          {/* App title */}
+          <Text style={styles.title}>Workout Plan</Text>
 
-        {/* Secondary action: Register */}
-        <Pressable
-          style={styles.secondaryButton}
-          onPress={() => navigation.navigate("Register")}
-        >
-          <Text style={styles.secondaryButtonText}>Create account</Text>
-        </Pressable>
-      </View>
+          {/* Tagline */}
+          <Text style={styles.subtitle}>
+            Record your workout plans. Stay consistent. Track progress.
+          </Text>
+
+          {/* Buttons */}
+          <View style={styles.actions}>
+            {/* Primary button */}
+            <Pressable
+              style={styles.primaryButton}
+              onPress={() => navigation.navigate("Register")}
+            >
+              <Text style={styles.primaryButtonText}>Get started</Text>
+            </Pressable>
+
+            {/* Secondary button */}
+            <Pressable
+              style={styles.secondaryButton}
+              onPress={() => navigation.navigate("Login")}
+            >
+              <Text style={styles.secondaryButtonText}>Log in</Text>
+            </Pressable>
+          </View>
+
+          {/* Small footer text */}
+          <Text style={styles.footerText}>
+            Plan • Train • Improve
+          </Text>
+        </View>
+      </ImageBackground>
     </View>
   );
 }
