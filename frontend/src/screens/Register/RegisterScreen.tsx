@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  ImageBackground,
 } from "react-native";
 
 // API client for backend communication
@@ -173,6 +174,11 @@ export default function RegisterScreen({ navigation, onSignedIn }: any) {
    * =========================
    */
   return (
+    <ImageBackground
+          source={require("../../../assets/Login.jpg")}
+          style={{ flex: 1 }}
+          resizeMode="cover"
+        >
     // Prevent keyboard from covering inputs
     <KeyboardAvoidingView
       style={styles.screen}
@@ -254,5 +260,6 @@ export default function RegisterScreen({ navigation, onSignedIn }: any) {
         </Text>
       </View>
     </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
