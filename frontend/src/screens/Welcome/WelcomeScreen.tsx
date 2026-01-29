@@ -29,7 +29,7 @@ export default function WelcomeScreen({ navigation }: any) {
 
       <ImageBackground
         // ✅ Put your image here (instructions below)
-        source={require("../../assets/welcome.jpg")}
+        source={require("../../../assets/welcome.jpg")}
         style={styles.bg}
         resizeMode="cover"
       >
