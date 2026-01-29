@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  Alert,
 } from "react-native";
 
 // API client for backend communication
@@ -170,7 +171,7 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
         </View>
 
         {/* Forgot password (future feature placeholder) */}
-        <Text style={styles.link} onPress={() => {}}>
+        <Text style={styles.link} onPress={() => Alert.alert("Forgot password", "Coming soon.")}>
           Forgot password?
         </Text>
 
