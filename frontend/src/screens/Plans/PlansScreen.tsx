@@ -1,5 +1,5 @@
 // screens/Plans/PlansScreen.tsx
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,9 @@ import { clearToken } from "../../auth/token";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
+
+// ✅ Swipe-to-delete
+import { Swipeable } from "react-native-gesture-handler";
 
 // Screen-specific styles
 import { styles } from "./styles";
@@ -52,6 +55,7 @@ type Plan = {
  * - Card-based list
  * - Empty state + loading state
  * - Pull-to-refresh
+ * - Swipe to delete (with confirmation)
  */
 export default function PlansScreen({
   navigation,
@@ -77,6 +81,12 @@ export default function PlansScreen({
 
   // Create plan loading state (prevents double taps)
   const [creating, setCreating] = useState(false);
+
+  // Track which plan is being deleted (so we can show “Deleting…” in swipe action)
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Keep refs to Swipeable rows so we can close them programmatically
+  const rowRefs = useRef<Record<string, Swipeable | null>>({});
 
   /**
    * =========================
@@ -162,6 +172,55 @@ export default function PlansScreen({
     }
   }
 
+  /**
+   * Delete a plan (called after user confirms).
+   * - Calls backend delete endpoint
+   * - Updates UI immediately
+   */
+  async function deletePlan(planId: string) {
+    // Close the swipe row to avoid it staying open after delete
+    rowRefs.current[planId]?.close?.();
+
+    setDeletingId(planId);
+
+    try {
+      // ✅ Adjust endpoint if yours is different:
+      // If your backend uses /plans/:planId then this is correct.
+      await api.delete(`/plans/${planId}`);
+
+      // Instant UI update without needing a refetch
+      setPlans((prev) => prev.filter((p) => p.id !== planId));
+    } catch (e: any) {
+      Alert.alert("Error", e?.response?.data?.error ?? "Failed to delete plan");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  /**
+   * Ask the user to confirm deletion
+   * (best practice so users don't delete by accident).
+   */
+  function confirmDeletePlan(planId: string) {
+    Alert.alert(
+      "Delete plan?",
+      "This will delete all days and exercises inside it.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+          // If user cancels, close swipe row so UI feels consistent
+          onPress: () => rowRefs.current[planId]?.close?.(),
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deletePlan(planId),
+        },
+      ]
+    );
+  }
+
   // Logout the user
   async function logout() {
     try {
@@ -173,6 +232,38 @@ export default function PlansScreen({
     } catch {
       Alert.alert("Error", "Failed to logout");
     }
+  }
+
+  /**
+   * =========================
+   * Swipe UI helpers
+   * =========================
+   */
+
+  /**
+   * Render the right-side swipe actions (Delete)
+   * - This appears when the user swipes left on a plan card
+   */
+  function renderRightActions(planId: string) {
+    const isDeleting = deletingId === planId;
+
+    return (
+      <Pressable
+        onPress={() => {
+          // Prevent repeated taps while deleting
+          if (isDeleting) return;
+          confirmDeletePlan(planId);
+        }}
+        style={[
+          styles.swipeDelete,
+          isDeleting && styles.swipeDeleteDisabled,
+        ]}
+      >
+        <Text style={styles.swipeDeleteText}>
+          {isDeleting ? "Deleting..." : "Delete"}
+        </Text>
+      </Pressable>
+    );
   }
 
   /**
@@ -190,7 +281,10 @@ export default function PlansScreen({
       </Text>
 
       <Pressable
-        style={[styles.primaryButton, !canCreate && styles.primaryButtonDisabled]}
+        style={[
+          styles.primaryButton,
+          !canCreate && styles.primaryButtonDisabled,
+        ]}
         onPress={createPlan}
         disabled={!canCreate}
       >
@@ -201,20 +295,39 @@ export default function PlansScreen({
     </View>
   );
 
-  // Render one plan row
+  /**
+   * Render one plan row
+   * - Wrapped in Swipeable so users can swipe left to delete
+   * - Tap card to open plan
+   */
   const renderPlanItem = ({ item }: { item: Plan }) => (
-    <Pressable
-      onPress={() =>
-        navigation.navigate("Plan", {
-          planId: item.id,
-          title: item.title,
-        })
-      }
-      style={styles.planCard}
+    <Swipeable
+      // Keep a ref so we can close it when needed
+      ref={(ref) => {
+        rowRefs.current[item.id] = ref;
+      }}
+      renderRightActions={() => renderRightActions(item.id)}
+      overshootRight={false}
+      onSwipeableWillOpen={() => {
+        // Optional: close other open rows when a new one opens (prevents multiple open)
+        Object.keys(rowRefs.current).forEach((key) => {
+          if (key !== item.id) rowRefs.current[key]?.close?.();
+        });
+      }}
     >
-      <Text style={styles.planTitle}>{item.title}</Text>
-      <Text style={styles.planHint}>Tap to open</Text>
-    </Pressable>
+      <Pressable
+        onPress={() =>
+          navigation.navigate("Plan", {
+            planId: item.id,
+            title: item.title,
+          })
+        }
+        style={styles.planCard}
+      >
+        <Text style={styles.planTitle}>{item.title}</Text>
+        <Text style={styles.planHint}>Tap to open • Swipe to delete</Text>
+      </Pressable>
+    </Swipeable>
   );
 
   /**

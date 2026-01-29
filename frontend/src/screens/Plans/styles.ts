@@ -262,4 +262,27 @@ export const styles = StyleSheet.create({
     fontWeight: "900",
     fontSize: 15,
   },
+    /**
+   * Swipe-to-delete action
+   * - Appears when swiping left on a plan card
+   */
+  swipeDelete: {
+    backgroundColor: "#dc2626",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 96,
+    borderRadius: 16,
+    marginBottom: 12, // match card spacing
+  },
+
+  swipeDeleteDisabled: {
+    opacity: 0.7,
+  },
+
+  swipeDeleteText: {
+    color: "#fff",
+    fontWeight: "900",
+    fontSize: 14,
+  },
+
 });
