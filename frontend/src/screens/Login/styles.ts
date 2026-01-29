@@ -21,6 +21,13 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
   },
+  /**
+   * Background image wrapper
+   */
+  bg: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
 
   /**
    * Card container
@@ -115,4 +122,16 @@ export const styles = StyleSheet.create({
     color: "#2563eb",
     fontWeight: "500",
   },
+  
+  overlay: {
+  ...StyleSheet.absoluteFillObject,
+  backgroundColor: "rgba(0,0,0,0.55)",
+},
+
+container: {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 1, // 🔴 THIS IS CRITICAL
+},
 });

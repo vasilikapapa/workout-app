@@ -174,14 +174,18 @@ export default function RegisterScreen({ navigation, onSignedIn }: any) {
    * =========================
    */
   return (
+    
     <ImageBackground
           source={require("../../../assets/Login.jpg")}
-          style={{ flex: 1 }}
+          style={styles.bg}
           resizeMode="cover"
         >
-    // Prevent keyboard from covering inputs
-    <KeyboardAvoidingView
-      style={styles.screen}
+    {/* Dark overlay */}
+      <View style={styles.overlay} />
+
+      {/* Content ABOVE the overlay */}
+      <KeyboardAvoidingView
+        style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       {/* Center card */}

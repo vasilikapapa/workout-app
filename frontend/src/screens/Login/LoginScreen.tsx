@@ -111,15 +111,15 @@ export default function LoginScreen({ navigation, onSignedIn }: any) {
   return (
     <ImageBackground
       source={require("../../../assets/Login.jpg")}
-      style={{ flex: 1 }}
+      style={styles.bg}
       resizeMode="cover"
     >
-      {/* Dark overlay for readability */}
-      <View style={styles.overlay} />
+        {/* Dark overlay */}
+    <View style={styles.overlay} />
 
-      {/* Prevent keyboard from covering inputs */}
-      <KeyboardAvoidingView
-        style={styles.screen}
+    {/* Content ABOVE the overlay */}
+    <KeyboardAvoidingView
+      style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         {/* Centered login card */}
