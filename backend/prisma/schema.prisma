@@ -4,6 +4,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  
+  // tell Prisma which schemas exist/are allowed
+  schemas  = ["workout_app"]
 }
 
 model User {
@@ -12,6 +15,8 @@ model User {
   password  String
   createdAt DateTime @default(now())
   plans     Plan[]
+
+    @@schema("workout_app")
 }
 
 model Plan {
@@ -21,6 +26,8 @@ model Plan {
   createdAt DateTime @default(now())
   days      Day[]
   user      User     @relation(fields: [userId], references: [id])
+
+    @@schema("workout_app")
 }
 
 model Day {
@@ -32,6 +39,8 @@ model Day {
   updatedAt DateTime  @updatedAt
   plan      Plan      @relation(fields: [planId], references: [id], onDelete: Cascade)
   sections  Section[]
+
+    @@schema("workout_app")
 }
 
 model Section {
@@ -45,6 +54,8 @@ model Section {
   day          Day        @relation(fields: [dayId], references: [id], onDelete: Cascade)
 
   @@index([dayId])
+
+    @@schema("workout_app")
 }
 
 model Exercise {
@@ -62,4 +73,6 @@ model Exercise {
   section       Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
   @@index([sectionId])
+
+    @@schema("workout_app")
 }
